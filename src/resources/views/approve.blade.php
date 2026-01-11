@@ -12,22 +12,26 @@
         <table class="detail-table">
             <tr>
                 <th>名前</th>
-                <td>{{ $request->user->name }}</td>
+                <td class="start-col">{{ $request->user->name }}</td>
+                <td class="tilde-col"></td>
+                <td class="end-col"></td>
             </tr>
 
             <tr>
                 <th>日付</th>
-                <td class="date-row">
-                    <span>{{ optional($request->work->date)->format('Y年') }}</span>
-                    <span>{{ optional($request->work->date)->format('n月j日') }}</span>
+                <td class="start-col">{{ optional($request->work->date)->format('Y年') }}</td>
+                <td class="tilde-col"></td>
+                <td class="end-col">{{ optional($request->work->date)->format('n月j日') }}
                 </td>
             </tr>
 
             <tr>
                 <th>出勤・退勤</th>
-                <td class="time-row">
+                <td class="start-col">
                     {{ optional($display['work_start'])->format('H:i') ?? '-' }}
-                    <span class="tilde">〜</span>
+                </td>
+                <td class="tilde-col">～</td>
+                <td class="end-col">
                     {{ optional($display['work_end'])->format('H:i') ?? '-' }}
                 </td>
             </tr>
@@ -35,9 +39,11 @@
             @foreach($display['rests'] as $index => $rest)
             <tr>
                 <th>休憩{{ $index + 1 }}</th>
-                <td class="time-row">
+                <td class="start-col">
                     {{ optional($rest->rest_start)->format('H:i') ?? '-' }}
-                    <span class="tilde">〜</span>
+                </td>
+                <td class="tilde-col">～</td>
+                <td class="end-col">
                     {{ optional($rest->rest_end)->format('H:i') ?? '-' }}
                 </td>
             </tr>
@@ -45,7 +51,7 @@
 
             <tr>
                 <th>備考</th>
-                <td>{{ $display['reason'] ?? '-' }}</td>
+                <td colspan="3" class="reason-input">{{ $display['reason'] ?? '-' }}</td>
             </tr>
 
         </table>

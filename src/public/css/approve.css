@@ -21,21 +21,21 @@ body {
     margin-top: 70px;
     background: white;
     border-radius: 10px;
-    padding: 0;
 }
 
 .detail-table {
     width: 100%;
-    border-collapse: collapse;
+    /* border-collapse: collapse;
+    table-layout: fixed; */
 }
 
 .detail-table th,
 .detail-table td {
-    padding: 25px 40px;
+    padding: 25px 20px;
     font-size: 16px;
     border-bottom: 2px solid #E1E1E1;
-    letter-spacing: 0.15em;
     font-weight: bold;
+    letter-spacing: 0.15em;
 }
 
 .detail-table tr:last-child th,
@@ -44,44 +44,34 @@ body {
 }
 
 .detail-table th {
-    width: 180px;
+    width: 160px;
     color: #737373;
     text-align: left;
+    padding-left: 50px;
 }
 
-.date-row span:first-child {
-    margin-right: 80px;
-    font-weight: bold;
-}
-
-.time-row {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
-.time-input {
-    width: 110px;
-    padding: 5px 10px;
-    border: 1px solid #E1E1E1;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: bold;
+.start-col {
+    width: 100px;
     text-align: center;
-    letter-spacing: 0.15em;
-    height: 28px;
+    white-space: nowrap;
 }
 
-.tilde {
-    font-size: 16px;
-    font-weight: bold;
+.tilde-col {
+    width: 40px;
+    text-align: left;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.end-col {
+    width: 240px;
+    text-align: left;
 }
 
 .detail-button-area {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    padding-top: 50px;
+    padding-top: 40px;
 }
 
 .approve-button {
@@ -113,5 +103,4 @@ body {
     font-size: 22px;
     font-weight: bold;
     letter-spacing: 0.15em;
-    cursor: default;
 }

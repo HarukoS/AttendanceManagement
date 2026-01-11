@@ -16,10 +16,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('attendance:auto-close')->dailyAt('00:00');
         $schedule->call(function () {
-            Log::info('scheduler is running');
-        })->everyMinute();
+            \App\Models\User::where('status', 3)
+                ->update(['status' => 0]);
+        })->dailyAt('00:05');
     }
 
     /**

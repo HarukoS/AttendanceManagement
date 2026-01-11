@@ -61,6 +61,13 @@ Route::get('/admin/attendance/staff/{id}', [AttendanceController::class, 'adminA
     ->name('admin.attendance.staff')
     ->middleware(['auth', 'can:admin']);
 
+// スタッフ別月別勤怠CSV出力
+Route::get(
+    '/admin/attendance/staff/{id}/csv',
+    [AttendanceController::class, 'adminAttendanceStaffCsv']
+)->name('admin.attendance.staff.csv')
+    ->middleware(['auth', 'can:admin']);
+
 // 管理者用ログイン画面
 Route::get('/admin/login', fn() => view('admin_login'))
     ->name('admin.login');

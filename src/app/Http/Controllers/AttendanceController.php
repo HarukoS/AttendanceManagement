@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\Request as CorrectionRequest;
 use App\Models\RequestDetail;
 use App\Http\Requests\RequestRequest;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
 {
@@ -475,26 +476,26 @@ class AttendanceController extends Controller
         }
     }
 
-    private function storeNewRest(
-        Request $request,
-        CorrectionRequest $correctionRequest
-    ) {
-        $input = $request->input('rests.new');
+    // private function storeNewRest(
+    //     Request $request,
+    //     CorrectionRequest $correctionRequest
+    // ) {
+    //     $input = $request->input('rests.new');
 
-        if (
-            empty($input['rest_start']) &&
-            empty($input['rest_end'])
-        ) {
-            return;
-        }
+    //     if (
+    //         empty($input['rest_start']) &&
+    //         empty($input['rest_end'])
+    //     ) {
+    //         return;
+    //     }
 
-        RequestDetail::create([
-            'request_id'     => $correctionRequest->id,
-            'type'           => 'rest_new',
-            'new_rest_start' => $input['rest_start'] ?? null,
-            'new_rest_end'   => $input['rest_end'] ?? null,
-        ]);
-    }
+    //     RequestDetail::create([
+    //         'request_id'     => $correctionRequest->id,
+    //         'type'           => 'rest_new',
+    //         'new_rest_start' => $input['rest_start'] ?? null,
+    //         'new_rest_end'   => $input['rest_end'] ?? null,
+    //     ]);
+    // }
 
     public function userStampCorrectionList(Request $request)
     {
@@ -886,5 +887,72 @@ class AttendanceController extends Controller
             'nextMonth',
             'days'
         ));
+    }
+
+    public function adminAttendanceStaffCsv(Request $request, $id)
+    {
+        $staff = User::findOrFail($id);
+
+        // 対象月
+        $targetMonth = $request->query('month')
+            ? Carbon::createFromFormat('Y-m', $request->query('month'))->startOfMonth()
+            : now()->startOfMonth();
+
+        $start = $targetMonth->copy()->startOfMonth();
+        $end   = $targetMonth->copy()->endOfMonth();
+
+        $works = Work::with('rests')
+            ->where('user_id', $staff->id)
+            ->whereBetween('date', [$start, $end])
+            ->orderBy('date')
+            ->get();
+
+        $fileName = "{$staff->name}_{$targetMonth->format('Y_m')}_attendance.csv";
+
+        return response()->streamDownload(function () use ($works) {
+            $handle = fopen('php://output', 'w');
+
+            // Excel文字化け防止（超重要）
+            fputs($handle, "\xEF\xBB\xBF");
+
+            // ヘッダー
+            fputcsv($handle, [
+                '日付',
+                '出勤',
+                '退勤',
+                '休憩時間',
+                '労働時間',
+            ]);
+
+            foreach ($works as $work) {
+                fputcsv($handle, [
+                    $work->date->format('Y-m-d'),
+                    $work->work_start
+                        ? Carbon::parse($work->work_start)->format('H:i')
+                        : '',
+                    $work->work_end
+                        ? Carbon::parse($work->work_end)->format('H:i')
+                        : '',
+                    $work->work_end
+                        ? sprintf(
+                            '%02d:%02d',
+                            floor($work->getRestMinutes() / 60),
+                            $work->getRestMinutes() % 60
+                        )
+                        : '',
+                    $work->work_end
+                        ? sprintf(
+                            '%02d:%02d',
+                            floor($work->getActualMinutes() / 60),
+                            $work->getActualMinutes() % 60
+                        )
+                        : '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $fileName, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 }

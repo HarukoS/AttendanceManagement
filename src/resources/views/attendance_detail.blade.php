@@ -17,27 +17,28 @@
 
                 <tr>
                     <th>名前</th>
-                    <td>{{ $user->name }}</td>
+                    <td class="start-col">{{ $user->name }}</td>
+                    <td class="tilde-col"></td>
+                    <td class="end-col"></td>
                 </tr>
 
                 <tr>
                     <th>日付</th>
-                    <td class="date-row">
-                        <span>{{ $work->date->format('Y年') }}</span>
-                        <span>{{ $work->date->format('n月j日') }}</span>
-                    </td>
+                    <td class="start-col">{{ $work->date->format('Y年') }}</td>
+                    <td class="tilde-col"></td>
+                    <td class="end-col">{{ $work->date->format('n月j日') }}</td>
                 </tr>
 
                 <tr>
                     <th>出勤・退勤</th>
-                    <td class="time-row">
+                    <td class="start-col">
                         <input type="text"
                             name="work_start"
                             class="time-input"
                             value="{{ old('work_start', optional($display['work_start'])->format('H:i')) }}">
-
-                        <span class="tilde">〜</span>
-
+                    </td>
+                    <td class="tilde-col">～</td>
+                    <td class="end-col">
                         <input type="text"
                             name="work_end"
                             class="time-input"
@@ -45,18 +46,17 @@
                     </td>
                 </tr>
 
-                {{-- 既存の休憩 --}}
                 @foreach ($display['rests'] as $index => $rest)
                 <tr>
                     <th>休憩{{ $index + 1 }}</th>
-                    <td class="time-row">
+                    <td class="start-col">
                         <input type="text"
                             name="rests[{{ $rest->id }}][rest_start]"
                             class="time-input"
                             value="{{ old("rests.$rest->id.rest_start", optional($rest->rest_start)->format('H:i')) }}">
-
-                        <span class="tilde">〜</span>
-
+                    </td>
+                    <td class="tilde-col">～</td>
+                    <td class="end-col">
                         <input type="text"
                             name="rests[{{ $rest->id }}][rest_end]"
                             class="time-input"
@@ -69,14 +69,15 @@
                 @if (!$display['is_pending'])
                 <tr>
                     <th>休憩{{ count($display['rests']) + 1 }}</th>
-                    <td class="time-row">
+
+                    <td class="start-col">
                         <input type="text"
                             name="rests[new][rest_start]"
                             class="time-input"
                             placeholder="--:--">
-
-                        <span class="tilde">〜</span>
-
+                    </td>
+                    <td class="tilde-col">～</td>
+                    <td class="end-col">
                         <input type="text"
                             name="rests[new][rest_end]"
                             class="time-input"
@@ -88,7 +89,7 @@
                 {{-- 備考 --}}
                 <tr>
                     <th>備考</th>
-                    <td>
+                    <td colspan="3">
                         <textarea
                             name="reason"
                             class="reason-input">{{ old('reason', $display['reason']) }}</textarea>
@@ -104,18 +105,16 @@
                 ※承認待ちのため修正はできません。
             </div>
             @else
-            <button type="submit" class="edit-button">
-                修正
-            </button>
+            <button type="submit" class="edit-button">修正</button>
             @endif
         </div>
 
     </form>
 
-    @if (count($errors) > 0)
+    @if ($errors->any())
     <ul class="error-text">
         @foreach ($errors->all() as $error)
-        <li>{{$error}}</li>
+        <li>{{ $error }}</li>
         @endforeach
     </ul>
     @endif

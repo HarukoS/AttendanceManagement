@@ -92,6 +92,14 @@ class RequestRequest extends FormRequest
                             '休憩時間もしくは退勤時間が不適切な値です'
                         );
                     }
+
+                    // ④ 休憩終了が休憩開始より前
+                    if ($restStart && $restEnd && $restEnd->lte($restStart)) {
+                        $validator->errors()->add(
+                            "rests.$index.rest_start",
+                            '休憩時間が不適切な値です'
+                        );
+                    }
                 }
             }
         });

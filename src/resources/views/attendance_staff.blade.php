@@ -9,16 +9,16 @@
 
     <h1 class="page-title">{{ $staff->name }}さんの勤怠</h1>
 
-    <!-- 月移動ナビ -->
     <div class="month-nav">
-        <a href="{{ route('admin.attendance.staff', ['id' => $staff->id, 'month' => $prevMonth]) }}">← 前月</a>
-
-        <strong><img class="calendar__img" src="{{ asset('img/calendar.png') }}" alt="カレンダー" />{{ $targetMonth->format('Y年m月') }}</strong>
-
-        <a href="{{ route('admin.attendance.staff', ['id' => $staff->id, 'month' => $nextMonth]) }}">翌月 →</a>
+        <a href="{{ route('admin.attendance.staff', ['id' => $staff->id, 'month' => $prevMonth]) }}" class="month-nav__change">
+            <img class="arrow_left__img" src="{{ asset('img/arrow.png') }}" alt="arrow" />前月
+        </a>
+        <strong><img class="calendar__img" src="{{ asset('img/calendar.png') }}" alt="カレンダー" />{{ $targetMonth->format('Y/m') }}</strong>
+        <a href="{{ route('admin.attendance.staff', ['id' => $staff->id, 'month' => $nextMonth]) }}" class="month-nav__change">
+            翌月<img class="arrow_right__img" src="{{ asset('img/arrow.png') }}" alt="arrow" />
+        </a>
     </div>
 
-    <!-- 勤怠一覧カード -->
     <div class="attendance-card">
         <table class="attendance-table">
             <thead>
@@ -75,5 +75,16 @@
         </table>
     </div>
 
+    <div class="csv-button-area">
+        <form
+            method="GET"
+            action="{{ route('admin.attendance.staff.csv', $staff->id) }}">
+            <input type="hidden" name="month" value="{{ $targetMonth->format('Y-m') }}">
+
+            <button type="submit" class="csv-button">
+                CSV出力
+            </button>
+        </form>
+    </div>
 </div>
 @endsection

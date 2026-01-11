@@ -15,33 +15,30 @@
         <div class="detail-card">
             <table class="detail-table">
 
-                {{-- 名前 --}}
                 <tr>
                     <th>名前</th>
-                    <td>{{ $work->user->name }}</td>
+                    <td class="start-col">{{ $work->user->name }}</td>
+                    <td class="tilde-col"></td>
+                    <td class="end-col"></td>
                 </tr>
 
-                {{-- 日付 --}}
                 <tr>
                     <th>日付</th>
-                    <td class="date-row">
-                        <span>{{ $work->date->format('Y年') }}</span>
-                        <span>{{ $work->date->format('n月j日') }}</span>
-                    </td>
+                    <td class="start-col">{{ $work->date->format('Y年') }}</td>
+                    <td class="tilde-col"></td>
+                    <td class="end-col">{{ $work->date->format('n月j日') }}</td>
                 </tr>
 
-                {{-- 出勤・退勤 --}}
                 <tr>
                     <th>出勤・退勤</th>
-                    <td class="time-row">
+                    <td class="start-col">
                         <input type="text"
                             name="work_start"
                             class="time-input"
                             value="{{ optional($display['work_start'])->format('H:i') }}"
                             {{ $display['is_pending'] ? 'readonly' : '' }}>
-
-                        <span class="tilde">〜</span>
-
+                    <td class="tilde-col">～</td>
+                    <td class="end-col">
                         <input type="text"
                             name="work_end"
                             class="time-input"
@@ -50,19 +47,17 @@
                     </td>
                 </tr>
 
-                {{-- 既存の休憩 --}}
                 @foreach ($display['rests'] as $index => $rest)
                 <tr>
                     <th>休憩{{ $index + 1 }}</th>
-                    <td class="time-row">
+                    <td class="start-col">
                         <input type="text"
                             name="rests[{{ $rest->id }}][rest_start]"
                             class="time-input"
                             value="{{ optional($rest->rest_start)->format('H:i') }}"
                             {{ $display['is_pending'] ? 'readonly' : '' }}>
-
-                        <span class="tilde">〜</span>
-
+                    <td class="tilde-col">～</td>
+                    <td class="end-col">
                         <input type="text"
                             name="rests[{{ $rest->id }}][rest_end]"
                             class="time-input"
@@ -72,18 +67,16 @@
                 </tr>
                 @endforeach
 
-                {{-- 追加休憩（承認待ちは表示しない） --}}
                 @if (!$display['is_pending'])
                 <tr>
                     <th>休憩{{ count($display['rests']) + 1 }}</th>
-                    <td class="time-row">
+                    <td class="start-col">
                         <input type="text"
                             name="rests[new][rest_start]"
                             class="time-input"
                             placeholder="--:--">
-
-                        <span class="tilde">〜</span>
-
+                    <td class="tilde-col">～</td>
+                    <td class="end-col">
                         <input type="text"
                             name="rests[new][rest_end]"
                             class="time-input"
@@ -92,10 +85,9 @@
                 </tr>
                 @endif
 
-                {{-- 備考 --}}
                 <tr>
                     <th>備考</th>
-                    <td>
+                    <td colspan="3">
                         <textarea
                             name="reason"
                             class="reason-input"
@@ -106,7 +98,6 @@
             </table>
         </div>
 
-        {{-- ボタン --}}
         <div class="detail-button-area">
             @if ($display['is_pending'])
             <div class="request-warning">
@@ -121,7 +112,6 @@
 
     </form>
 
-    {{-- バリデーションエラー --}}
     @if ($errors->any())
     <ul class="error-text">
         @foreach ($errors->all() as $error)

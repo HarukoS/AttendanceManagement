@@ -21,21 +21,19 @@ body {
     margin-top: 70px;
     background: white;
     border-radius: 10px;
-    padding: 0;
 }
 
 .detail-table {
     width: 100%;
-    border-collapse: collapse;
 }
 
 .detail-table th,
 .detail-table td {
-    padding: 25px 40px;
+    padding: 25px 30px;
     font-size: 16px;
     border-bottom: 2px solid #E1E1E1;
-    letter-spacing: 0.15em;
     font-weight: bold;
+    letter-spacing: 0.15em;
 }
 
 .detail-table tr:last-child th,
@@ -44,67 +42,63 @@ body {
 }
 
 .detail-table th {
-    width: 180px;
+    width: 160px;
     color: #737373;
+    text-align: left;
+    padding-left: 50px;
+}
+
+.start-col {
+    width: 103px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.tilde-col {
+    width: 40px;
+    text-align: left;
+    padding: 0;
+    padding-right: 0;
+}
+
+.end-col {
+    width: 240px;
     text-align: left;
 }
 
-.date-row span:first-child {
-    margin-right: 80px;
-    font-weight: bold;
-}
-
-.time-row {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-}
-
 .time-input {
-    width: 110px;
-    padding: 5px 10px;
+    width: 103px;
+    text-align: center;
     border: 1px solid #E1E1E1;
     border-radius: 4px;
     font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    letter-spacing: 0.15em;
     height: 28px;
-    font-family: "Inter", sans-serif;
-}
-
-.tilde {
-    font-size: 16px;
     font-weight: bold;
+    letter-spacing: 0.15em;
 }
 
 .reason-input {
-    width: 100%;
-    height: 60px;
+    width: 400px;
+    height: 72px;
     border: 1px solid #D9D9D9;
     border-radius: 4px;
     padding: 10px;
     font-size: 14px;
     font-weight: bold;
     resize: none;
-    letter-spacing: 0.15em;
+    margin-left: 30px;
+}
+
+.is-pending .time-input,
+.is-pending .reason-input {
+    border: none;
+    background-color: transparent;
+    pointer-events: none;
 }
 
 .detail-button-area {
     text-align: right;
     padding-top: 30px;
-}
-
-.is-pending input.time-input,
-.is-pending textarea.reason-input {
-    border: none;
-    background: #fff;
-    outline: none;
-    pointer-events: none;
-}
-
-.is-pending .tilde {
-    color: #555;
 }
 
 .edit-button {
@@ -114,11 +108,8 @@ body {
     font-size: 22px;
     border-radius: 5px;
     cursor: pointer;
-    letter-spacing: 0.15em;
     width: 130px;
     height: 50px;
-    line-height: 50px;
-    text-align: center;
 }
 
 .edit-button:hover {
@@ -128,9 +119,7 @@ body {
 .request-warning {
     color: rgba(255, 0, 0, 0.5);
     font-size: 18px;
-    margin-top: 20px;
     font-weight: bold;
-    letter-spacing: 0.15em;
     text-align: right;
 }
 
