@@ -5,7 +5,9 @@
     他社サービスは機能や画面が複雑で使いづらいため。
 
 ## アプリケーションURL
-    - 開発環境：http://localhost/
+    - 開発環境：
+        http://localhost/login（ユーザーログイン画面）
+        http://localhost/admin/login（管理者ログイン画面）            
     - phpMyAdmin:http://localhost:8080/
 
 ## 機能一覧
@@ -19,10 +21,10 @@
     - MySQL 8.0.26
 
 ## テーブル設計
-
+<img width="656" height="774" alt="image" src="https://github.com/user-attachments/assets/50c42b70-e3ca-40c0-a186-553a19516328" />
 
 ## ER図
-
+![ER図](er.drawio.png)
 
 ## 環境構築
 
@@ -35,6 +37,7 @@
     1. docker-compose exec php bash
     2. composer install
     3. .env.exampleファイルから.envを作成し、環境変数を変更
+        MAIL_FROM_ADDRESS=attendance_management@example.com
         MAIL_FROM_NAME="Coachtech Attendance Management App"
     4. php artisan key:generate
     5. php artisan migrate
@@ -54,7 +57,7 @@
     ※パスワードは全て"password"
 
 ## 勤怠データ一覧
-    ダミーデータのユーザー2と3につき、10日ずつ（2025/12/25～2026/1/9の平日）、9:00～18:00の勤務データ
+    ダミーデータのユーザー2と3につき、10日ずつ（2025/12/22～2026/1/9の平日）、9:00～18:00の勤務データ
 
 ## 休憩データ一覧
     各勤務日につき、12:00～13:00の休憩データ
