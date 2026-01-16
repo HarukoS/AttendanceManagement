@@ -106,14 +106,29 @@ body {
     color: white;
     border: none;
     font-size: 22px;
+    font-weight: bold;
     border-radius: 5px;
     cursor: pointer;
     width: 130px;
     height: 50px;
+    letter-spacing: 0.15em;
 }
 
 .edit-button:hover {
     opacity: 0.85;
+}
+
+.edit-button.done {
+    background: #696969;
+    color: white;
+    border: none;
+    font-size: 22px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 130px;
+    height: 50px;
+    letter-spacing: 0.15em;
 }
 
 .request-warning {

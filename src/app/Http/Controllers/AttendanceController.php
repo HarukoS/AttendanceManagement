@@ -244,13 +244,15 @@ class AttendanceController extends Controller
             });
 
         $display = [
-            'work_start' => $work->work_start,
-            'work_end'   => $work->work_end,
-            'rests'      => $displayRests,
-            'reason'     => $work->reason,
-            'is_pending' => false,
+            'work_start'  => $work->work_start,
+            'work_end'    => $work->work_end,
+            'rests'       => $displayRests,
+            'reason'      => $work->reason,
+            'is_pending'  => false,
+            'is_approved' => false,
         ];
 
+        // 承認待ちを優先、なければ承認済み
         $targetRequest = $pendingRequest ?? $approvedRequest;
 
         if ($targetRequest) {
@@ -262,7 +264,6 @@ class AttendanceController extends Controller
                 $time = Carbon::createFromFormat('H:i:s', $detail->new_time);
 
                 switch ($detail->type) {
-
                     case 'work_start':
                         $display['work_start'] = $time;
                         break;
@@ -296,7 +297,14 @@ class AttendanceController extends Controller
             }
 
             $display['reason'] = $targetRequest->reason;
-            $display['is_pending'] = $targetRequest->status === 0;
+
+            if ($targetRequest->status === 0) {
+                $display['is_pending'] = true;
+            }
+
+            if ($targetRequest->status === 1) {
+                $display['is_approved'] = true;
+            }
         }
 
         $display['rests'] = $display['rests']->values();
@@ -596,11 +604,12 @@ class AttendanceController extends Controller
             });
 
         $display = [
-            'work_start' => $work->work_start,
-            'work_end'   => $work->work_end,
-            'rests'      => $displayRests,
-            'reason'     => $work->reason,
-            'is_pending' => false,
+            'work_start'  => $work->work_start,
+            'work_end'    => $work->work_end,
+            'rests'       => $displayRests,
+            'reason'      => $work->reason,
+            'is_pending'  => false,
+            'is_approved' => false,
         ];
 
         $targetRequest = $pendingRequest ?? $approvedRequest;
@@ -610,10 +619,10 @@ class AttendanceController extends Controller
             $newRest = null;
 
             foreach ($targetRequest->details as $detail) {
+
                 $time = Carbon::parse($detail->new_time);
 
                 switch ($detail->type) {
-
                     case 'work_start':
                         $display['work_start'] = $time;
                         break;
@@ -646,8 +655,15 @@ class AttendanceController extends Controller
                 }
             }
 
-            $display['reason']     = $targetRequest->reason;
-            $display['is_pending'] = $targetRequest->status === 0;
+            $display['reason'] = $targetRequest->reason;
+
+            if ($targetRequest->status === 0) {
+                $display['is_pending'] = true;
+            }
+
+            if ($targetRequest->status === 1) {
+                $display['is_approved'] = true;
+            }
         }
 
         $display['rests'] = $display['rests']->values();
@@ -880,7 +896,7 @@ class AttendanceController extends Controller
         $start = $targetMonth->copy()->startOfMonth();
         $end   = $targetMonth->copy()->endOfMonth();
 
-        $works = Work::with('rests')
+        $works = Work::with(['rests', 'requests.details'])
             ->where('user_id', $staff->id)
             ->whereBetween('date', [$start, $end])
             ->orderBy('date')
@@ -902,27 +918,22 @@ class AttendanceController extends Controller
             ]);
 
             foreach ($works as $work) {
+
+                $display = $this->buildDisplayData($work);
+
                 fputcsv($handle, [
                     $work->date->format('Y-m-d'),
-                    $work->work_start
-                        ? Carbon::parse($work->work_start)->format('H:i')
+                    $display['work_start']
+                        ? Carbon::parse($display['work_start'])->format('H:i')
                         : '',
-                    $work->work_end
-                        ? Carbon::parse($work->work_end)->format('H:i')
+                    $display['work_end']
+                        ? Carbon::parse($display['work_end'])->format('H:i')
                         : '',
-                    $work->work_end
-                        ? sprintf(
-                            '%02d:%02d',
-                            floor($work->getRestMinutes() / 60),
-                            $work->getRestMinutes() % 60
-                        )
+                    $display['work_end']
+                        ? $this->calcRestTime($display['rests'])
                         : '',
-                    $work->work_end
-                        ? sprintf(
-                            '%02d:%02d',
-                            floor($work->getActualMinutes() / 60),
-                            $work->getActualMinutes() % 60
-                        )
+                    $display['work_end']
+                        ? $this->calcActualTime($display)
                         : '',
                 ]);
             }
@@ -931,5 +942,110 @@ class AttendanceController extends Controller
         }, $fileName, [
             'Content-Type' => 'text/csv',
         ]);
+    }
+
+    private function calcRestTime($rests)
+    {
+        $minutes = 0;
+
+        foreach ($rests as $rest) {
+            if ($rest->rest_start && $rest->rest_end) {
+                $minutes += Carbon::parse($rest->rest_end)
+                    ->diffInMinutes(Carbon::parse($rest->rest_start));
+            }
+        }
+
+        return sprintf(
+            '%02d:%02d',
+            floor($minutes / 60),
+            $minutes % 60
+        );
+    }
+
+    private function calcActualTime(array $display)
+    {
+        if (!$display['work_start'] || !$display['work_end']) {
+            return '';
+        }
+
+        $totalMinutes = Carbon::parse($display['work_end'])
+            ->diffInMinutes(Carbon::parse($display['work_start']));
+
+        $restMinutes = 0;
+
+        foreach ($display['rests'] as $rest) {
+            if ($rest->rest_start && $rest->rest_end) {
+                $restMinutes += Carbon::parse($rest->rest_end)
+                    ->diffInMinutes(Carbon::parse($rest->rest_start));
+            }
+        }
+
+        $actual = max(0, $totalMinutes - $restMinutes);
+
+        return sprintf(
+            '%02d:%02d',
+            floor($actual / 60),
+            $actual % 60
+        );
+    }
+
+    private function buildDisplayData(Work $work)
+    {
+        $approvedRequest = $work->requests
+            ->where('status', 1)
+            ->sortByDesc('approved_at')
+            ->first();
+
+        $workStart = $work->work_start;
+        $workEnd   = $work->work_end;
+
+        $rests = $work->rests
+            ->keyBy('id')
+            ->map(fn($r) => (object)[
+                'rest_start' => $r->rest_start,
+                'rest_end'   => $r->rest_end,
+            ]);
+
+        if ($approvedRequest) {
+            $newRest = null;
+
+            foreach ($approvedRequest->details as $detail) {
+                $time = Carbon::parse($detail->new_time);
+
+                switch ($detail->type) {
+                    case 'work_start':
+                        $workStart = $time;
+                        break;
+                    case 'work_end':
+                        $workEnd = $time;
+                        break;
+                    case 'rest_start':
+                        if ($detail->rest_id && isset($rests[$detail->rest_id])) {
+                            $rests[$detail->rest_id]->rest_start = $time;
+                        } else {
+                            $newRest = (object)[
+                                'rest_start' => $time,
+                                'rest_end' => null,
+                            ];
+                        }
+                        break;
+                    case 'rest_end':
+                        if ($detail->rest_id && isset($rests[$detail->rest_id])) {
+                            $rests[$detail->rest_id]->rest_end = $time;
+                        } elseif ($newRest) {
+                            $newRest->rest_end = $time;
+                            $rests->push($newRest);
+                            $newRest = null;
+                        }
+                        break;
+                }
+            }
+        }
+
+        return [
+            'work_start' => $workStart,
+            'work_end'   => $workEnd,
+            'rests'      => $rests->values(),
+        ];
     }
 }

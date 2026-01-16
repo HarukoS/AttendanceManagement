@@ -24,15 +24,9 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
-                        @php
-                        $hasWork = \App\Models\Work::where('user_id', $user->id)->exists();
-                        @endphp
-
-                        @if ($hasWork)
-                        <a href="{{ route('admin.attendance.staff', $user->id) }}" class="detail-link">詳細</a>
-                        @else
-                        <span class="detail-link disabled">詳細</span>
-                        @endif
+                        <a href="{{ route('admin.attendance.staff', $user->id) }}" class="detail-link">
+                            詳細
+                        </a>
                     </td>
                 </tr>
                 @endforeach

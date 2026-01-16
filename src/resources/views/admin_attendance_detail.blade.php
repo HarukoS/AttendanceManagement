@@ -103,6 +103,12 @@
             <div class="request-warning">
                 ※承認待ちのため修正はできません。
             </div>
+
+            @elseif ($display['is_approved'])
+            <button class="edit-button done" disabled>
+                修正済み
+            </button>
+
             @else
             <button type="submit" class="edit-button">
                 修正
